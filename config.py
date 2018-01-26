@@ -1,3 +1,5 @@
 token = '503680368:AAHdqEh8gz3hlg1wxZws2D9LfWG4rp3_Two'
 cybersport_matches_url = 'https://www.cybersport.ru/base/match/list/disciplines/dota2/status/future/page/1/search'
-
+moscow_tz = 'Europe/Moscow'
+izhevsk_tz = 'Europe/Samara'
+time_regexp = '^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'

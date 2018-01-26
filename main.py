@@ -1,37 +1,30 @@
+# -*- coding: utf-8 -*-
+
 import config
 import cybersport
-from bot import BotHandler as bot_handler
+import utils
 
-bot = bot_handler(config.token)
+import telebot
+from telebot import types
+
+bot = telebot.TeleBot(config.token)
 
 
-def main():
-    is_first = True
-    message_id = 0
+@bot.message_handler(commands=['get_matches'])
+def command_get_matches(message):
+    response_message = utils.replace_time_with_local(cybersport.get_matches_info())
+    bot.send_message(message.chat.id, response_message)
 
-    while True:
-        last_update = bot.get_last_update()
-        bot_info = bot.get_me()
-        bot_name = bot_info['username']
 
-        try:
-            last_chat_id = last_update['message']['chat']['id']
-            last_chat_text = last_update['message']['text']
-            last_message_id = last_update['message']['message_id']
-
-            if is_first or message_id != last_message_id:
-                is_first = False
-                message_id = last_message_id
-
-                if last_chat_text == "/get_matches" or last_chat_text == "/get_matches@"+bot_name:
-                    response_message = cybersport.get_matches_info()
-                    bot.send_message(last_chat_id, response_message)
-        except KeyError:
-            continue
+@bot.inline_handler(func=lambda query: query.query == "get")
+def query_text(query):
+    matches_list = types.InlineQueryResultArticle(
+        id='1', title="Матчи Dota 2",
+        description="Список будущих матчей",
+        input_message_content=types.InputTextMessageContent(message_text=cybersport.get_matches_info())
+    )
+    bot.answer_inline_query(query.id, [matches_list])
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        exit()
+    bot.polling(none_stop=True)
